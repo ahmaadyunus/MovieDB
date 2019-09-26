@@ -101,6 +101,11 @@
             android:id="@+id/rv_movie_list"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
+
+        <include
+            android:id="@+id/layout_error"
+            layout="@layout/view_error"
+            android:visibility="gone" />
     </LinearLayout>
 
 

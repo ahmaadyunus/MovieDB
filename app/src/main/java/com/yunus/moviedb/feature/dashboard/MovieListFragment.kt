@@ -17,6 +17,7 @@ import com.yunus.moviedb.feature.common.SimpleViewModel
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 import kotlinx.android.synthetic.main.fragment_movie_list.rv_movie_list as rvMovieList
 import kotlinx.android.synthetic.main.fragment_movie_list.shimmer_layout as shimmerLayout
+import kotlinx.android.synthetic.main.fragment_movie_list.layout_error as layoutError
 
 
 class MovieListFragment : BaseFragment(), Paginate.Callbacks {
@@ -38,6 +39,7 @@ class MovieListFragment : BaseFragment(), Paginate.Callbacks {
 
     private fun getData(page: Int) {
         isLoading = true
+        layoutError.visibility = View.GONE
         if (page == 1) {
             setShimmer(true)
         }
@@ -50,9 +52,12 @@ class MovieListFragment : BaseFragment(), Paginate.Callbacks {
             }
             isLoading = false
             viewModel.updatePage(arguments?.getString(MOVIE_TYPE, ""))
+            rvMovieList.visibility = View.VISIBLE
         }, {
             setShimmer(false)
             isLoading = false
+            layoutError.visibility = View.VISIBLE
+            rvMovieList.visibility = View.GONE
         })
 
     }

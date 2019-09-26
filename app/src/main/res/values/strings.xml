@@ -3,4 +3,5 @@
     <string name="popular">Popular</string>
     <string name="top_rated">Top Rated</string>
     <string name="favourite">Favourite</string>
+    <string name="something_went_wrong">Something went wrong.\nPlease refresh or try again later ..</string>
 </resources>
