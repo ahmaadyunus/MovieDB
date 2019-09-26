@@ -1,7 +1,8 @@
 package com.yunus.moviedb.repository
 
 import com.yunus.moviedb.BuildConfig
-import com.yunus.moviedb.data.PopularMovieResponse
+import com.yunus.moviedb.base.Constants
+import com.yunus.moviedb.data.MoviesResponse
 import com.yunus.moviedb.extension.getStringResWithAppContext
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -12,13 +13,14 @@ import java.net.UnknownHostException
 class DashboardRepository(private val serviceApi: ServiceApi) {
 
     fun getMovieList(
-        page: String,
-        cbOnResult: (PopularMovieResponse?) -> Unit,
+        movieType: String?,
+        page: Int,
+        cbOnResult: (MoviesResponse?) -> Unit,
         cbOnError: (Throwable?) -> Unit
     ) {
-        getTrendingRepoAPI(page).subscribeOn(Schedulers.io())
+        getTrendingRepoAPI(movieType, page).subscribeOn(Schedulers.io())
             .observeOn(Schedulers.newThread()).observeOn(AndroidSchedulers.mainThread())
-            .subscribe(object : DisposableObserver<PopularMovieResponse>() {
+            .subscribe(object : DisposableObserver<MoviesResponse>() {
                 override fun onComplete() {
                     dispose()
                 }
@@ -32,13 +34,18 @@ class DashboardRepository(private val serviceApi: ServiceApi) {
                     dispose()
                 }
 
-                override fun onNext(response: PopularMovieResponse) {
+                override fun onNext(response: MoviesResponse) {
                     cbOnResult(response)
                 }
             })
     }
 
-    private fun getTrendingRepoAPI(page: String): Observable<PopularMovieResponse> {
-        return serviceApi.getPopularMovies(BuildConfig.API_KEY, page)
+    private fun getTrendingRepoAPI(movieType: String?, page: Int): Observable<MoviesResponse> {
+        return when(movieType) {
+            Constants.POPULAR -> serviceApi.getPopularMovies(BuildConfig.API_KEY, page)
+            Constants.TOP_RATED -> serviceApi.getTopRatedMovies(BuildConfig.API_KEY, page)
+            Constants.FAVOURITE -> serviceApi.getFavorited(BuildConfig.API_KEY, "","created_at.asc",page)
+            else -> serviceApi.getPopularMovies(BuildConfig.API_KEY, page)
+        }
     }
 }
