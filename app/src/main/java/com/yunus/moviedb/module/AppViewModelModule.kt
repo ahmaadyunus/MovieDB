@@ -1,4 +1,8 @@
 package com.yunus.moviedb.module
 
-class AppViewModelModule {
+import com.yunus.moviedb.feature.dashboard.DashboardViewModel
+import org.koin.dsl.module
+
+val appViewModelModule = module {
+    single { DashboardViewModel(get())}
 }

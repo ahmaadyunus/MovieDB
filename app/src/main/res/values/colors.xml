@@ -7,4 +7,6 @@
     <color name="colorBlackText">#25282B</color>
     <color name="colorGreyText">#929292</color>
     <color name="colorPlaceHolder">#BFBFBF</color>
+    <color name="colorRed">#FF0000</color>
+
 </resources>

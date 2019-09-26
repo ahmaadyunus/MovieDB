@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/space_8"
+        android:layout_marginRight="@dimen/space_8"
+        android:orientation="horizontal">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:layout_marginBottom="4dp">
+
+            <TextView
+                android:id="@+id/tab_title"
+                style="@style/TabTitleText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:gravity="center"
+                android:maxLines="2"
+                tools:text="FAVOURITE" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/badge_container"
+            android:layout_width="wrap_content"
+            android:layout_height="16dp"
+            android:layout_marginStart="12dp"
+            android:background="@drawable/bg_badge"
+            android:gravity="center"
+            android:minWidth="16dp">
+
+            <TextView
+                android:id="@+id/badge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAlignment="center"
+                android:textColor="@android:color/white"
+                android:textSize="@dimen/text_10"
+                tools:text="1"
+                android:visibility="gone"/>
+        </LinearLayout>
+    </LinearLayout>
+</layout>
