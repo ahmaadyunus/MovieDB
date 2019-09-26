@@ -12,12 +12,7 @@ import java.net.UnknownHostException
 
 class DashboardRepository(private val serviceApi: ServiceApi) {
 
-    fun getMovieList(
-        movieType: String?,
-        page: Int,
-        cbOnResult: (MoviesResponse?) -> Unit,
-        cbOnError: (Throwable?) -> Unit
-    ) {
+    fun getMovieList(movieType: String?, page: Int, cbOnResult: (MoviesResponse?) -> Unit, cbOnError: (Throwable?) -> Unit) {
         getTrendingRepoAPI(movieType, page).subscribeOn(Schedulers.io())
             .observeOn(Schedulers.newThread()).observeOn(AndroidSchedulers.mainThread())
             .subscribe(object : DisposableObserver<MoviesResponse>() {

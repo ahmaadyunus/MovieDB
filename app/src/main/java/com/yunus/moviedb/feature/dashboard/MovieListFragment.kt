@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.GridLayoutManager
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.paginate.Paginate
 import com.yunus.moviedb.R
 import com.yunus.moviedb.base.BaseFragment
@@ -18,9 +19,10 @@ import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 import kotlinx.android.synthetic.main.fragment_movie_list.rv_movie_list as rvMovieList
 import kotlinx.android.synthetic.main.fragment_movie_list.shimmer_layout as shimmerLayout
 import kotlinx.android.synthetic.main.fragment_movie_list.layout_error as layoutError
+import kotlinx.android.synthetic.main.fragment_movie_list.swipe_refresh_layout as swipeRefreshLayout
 
 
-class MovieListFragment : BaseFragment(), Paginate.Callbacks {
+class MovieListFragment : BaseFragment(), Paginate.Callbacks, SwipeRefreshLayout.OnRefreshListener {
     private val viewModel: DashboardViewModel by sharedViewModel()
     private lateinit var binding: FragmentMovieListBinding
     private lateinit var adapter: GenericAppAdapter<SimpleViewModel>
@@ -35,6 +37,7 @@ class MovieListFragment : BaseFragment(), Paginate.Callbacks {
         super.onActivityCreated(savedInstanceState)
         viewModel.resetPage(arguments?.getString(MOVIE_TYPE, ""))
         getData(viewModel.getPage(arguments?.getString(MOVIE_TYPE, "")))
+        swipeRefreshLayout.setOnRefreshListener(this)
     }
 
     private fun getData(page: Int) {
@@ -51,19 +54,27 @@ class MovieListFragment : BaseFragment(), Paginate.Callbacks {
                 adapter.notifyDataSetChanged()
             }
             isLoading = false
+            swipeRefreshLayout.isRefreshing = false
             viewModel.updatePage(arguments?.getString(MOVIE_TYPE, ""))
             rvMovieList.visibility = View.VISIBLE
         }, {
             setShimmer(false)
             isLoading = false
+            swipeRefreshLayout.isRefreshing = false
             layoutError.visibility = View.VISIBLE
             rvMovieList.visibility = View.GONE
         })
 
     }
 
+    override fun onRefresh() {
+        swipeRefreshLayout.isRefreshing = true
+        viewModel.resetPage(arguments?.getString(MOVIE_TYPE, ""))
+        getData(viewModel.getPage(arguments?.getString(MOVIE_TYPE, "")))
+    }
+
     fun setupList() {
-        adapter = GenericAppAdapter(viewModel.popularList)
+        adapter = GenericAppAdapter(viewModel.getList(arguments?.getString(MOVIE_TYPE, "")))
         val gridLayoutManager = GridLayoutManager(mActivity, 2, GridLayoutManager.VERTICAL, false)
         rvMovieList.layoutManager = gridLayoutManager
         rvMovieList.adapter = adapter
