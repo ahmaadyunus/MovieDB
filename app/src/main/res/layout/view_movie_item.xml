@@ -3,6 +3,15 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <data>
+
+        <import type="android.view.View" />
+
+        <variable
+            name="rowViewModel"
+            type="com.yunus.moviedb.feature.dashboard.MovieItemViewModel" />
+    </data>
+
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -29,7 +38,8 @@
                     app:layout_constraintDimensionRatio="4:6"
                     app:layout_constraintLeft_toLeftOf="parent"
                     app:layout_constraintRight_toRightOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
+                    app:layout_constraintTop_toTopOf="parent"
+                    loadImage="@{rowViewModel.imageUrl}"/>
 
                 <TextView
                     android:id="@+id/tv_movie_title"
@@ -41,7 +51,8 @@
                     app:layout_constraintRight_toLeftOf="@+id/btn_like"
                     app:layout_constraintTop_toTopOf="@+id/btn_like"
                     app:layout_constraintBottom_toBottomOf="@+id/btn_like"
-                    tools:text="Tomorrowland" />
+                    tools:text="Tomorrowland"
+                    android:text="@{rowViewModel.movieTitle}"/>
 
                 <ImageView
                     android:id="@+id/btn_like"
@@ -53,7 +64,7 @@
                     app:layout_constraintRight_toRightOf="parent" />
 
                 <TextView
-                    android:id="@+id/tv_movie_category"
+                    android:id="@+id/tv_movie_genre"
                     style="@style/MovieCategoryText"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -62,7 +73,8 @@
                     app:layout_constraintLeft_toLeftOf="parent"
                     app:layout_constraintRight_toRightOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/btn_like"
-                    tools:text="Action, thriller" />
+                    tools:text="Action, thriller"
+                    android:text="@{rowViewModel.movieGenre}"/>
             </androidx.constraintlayout.widget.ConstraintLayout>
 
         </androidx.cardview.widget.CardView>
