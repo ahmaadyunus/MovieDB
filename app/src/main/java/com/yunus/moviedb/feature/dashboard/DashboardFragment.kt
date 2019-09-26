@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
@@ -19,7 +20,6 @@ import com.yunus.moviedb.extension.getStringResWithAppContext
 import com.yunus.moviedb.feature.common.PagerAdapter
 import kotlinx.android.synthetic.main.fragment_dashboard.*
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
-import kotlinx.android.synthetic.main.fragment_dashboard.shimmer_layout as shimerLayout
 
 
 class DashboardFragment : BaseFragment() {
@@ -34,13 +34,11 @@ class DashboardFragment : BaseFragment() {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        shimerLayout.startShimmer()
         setTabAndPager()
 
         viewModel.favouriteCount.observeForever {
-            tab_layout.getTabAt(2)?.setCustomView(R.layout.view_tab)
             val badge = tab_layout.getTabAt(2)?.customView?.findViewById<TextView>(R.id.badge)
-            val badgeContainer = tab_layout.getTabAt(2)?.customView?.findViewById<TextView>(R.id.badge_container)
+            val badgeContainer = tab_layout.getTabAt(2)?.customView?.findViewById<LinearLayout>(R.id.badge_container)
             badge?.text = it.toString()
             if (it > 0) {
                 badgeContainer?.visibility = View.VISIBLE
