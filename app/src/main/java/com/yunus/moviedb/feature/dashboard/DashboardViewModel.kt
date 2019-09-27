@@ -6,6 +6,7 @@ import com.yunus.moviedb.base.BaseViewModel
 import com.yunus.moviedb.base.Constants.FAVOURITE
 import com.yunus.moviedb.base.Constants.POPULAR
 import com.yunus.moviedb.base.Constants.TOP_RATED
+import com.yunus.moviedb.data.Genre
 import com.yunus.moviedb.feature.common.SimpleViewModel
 import com.yunus.moviedb.repository.DashboardRepository
 import org.koin.core.inject
@@ -16,6 +17,7 @@ class DashboardViewModel(val app: Application) : BaseViewModel(app) {
     var popularList = mutableListOf<SimpleViewModel>()
     var topRatedList = mutableListOf<SimpleViewModel>()
     var favouriteList = mutableListOf<SimpleViewModel>()
+    var genreList = mutableListOf<Genre>()
     var popularPage = 1
     var topRatedPage = 1
     var favouritedPage = 1
@@ -56,6 +58,19 @@ class DashboardViewModel(val app: Application) : BaseViewModel(app) {
 
 
     fun getMovies(movieType: String?, page: Int, cbOnSuccess: () -> Unit, cbOnError: (Throwable?) -> Unit) {
+       if (genreList.isEmpty()){
+           getGenres({
+               getMovieList(movieType, page, cbOnSuccess, cbOnError)
+           },{
+               cbOnError(it)
+           })
+       } else {
+            getMovieList(movieType, page, cbOnSuccess, cbOnError)
+       }
+
+    }
+
+    fun getMovieList(movieType: String?, page: Int, cbOnSuccess: () -> Unit, cbOnError: (Throwable?) -> Unit){
         repository.getMovieList(movieType, page, {
             if (page == 1) {
                 when (movieType) {
@@ -65,10 +80,18 @@ class DashboardViewModel(val app: Application) : BaseViewModel(app) {
                 }
             }
             it?.movies?.forEach { movie ->
+                var genre = genreList.find { it.id == movie.genreIds[0] }?.name
+                if (movie.genreIds.size > 1) {
+                    movie.genreIds.forEachIndexed { index, it1 ->
+                        if (index > 0) {
+                            genre = genre.plus(", ").plus(genreList.find { it.id == movie.genreIds[index] }?.name)
+                        }
+                    }
+                }
                 when (movieType) {
-                    POPULAR ->  popularList.add(MovieItemViewModel(movie.posterPath, movie.title, ""))
-                    TOP_RATED ->  topRatedList.add(MovieItemViewModel(movie.posterPath, movie.title, ""))
-                    FAVOURITE ->  favouriteList.add(MovieItemViewModel(movie.posterPath, movie.title, ""))
+                    POPULAR ->  popularList.add(MovieItemViewModel(movie.posterPath, movie.title, genre))
+                    TOP_RATED ->  topRatedList.add(MovieItemViewModel(movie.posterPath, movie.title, genre))
+                    FAVOURITE ->  favouriteList.add(MovieItemViewModel(movie.posterPath, movie.title, genre))
                 }
             }
             if (movieType.equals(FAVOURITE)) {
@@ -78,5 +101,14 @@ class DashboardViewModel(val app: Application) : BaseViewModel(app) {
         }, { throwable ->
             cbOnError(throwable)
         })
+    }
+
+    fun getGenres(cbOnSuccess: () -> Unit, cbOnError: (Throwable?) -> Unit){
+            repository.getGenres({
+                genreList = it?.genres?.toMutableList() ?: mutableListOf()
+                cbOnSuccess()
+            },{
+                cbOnError(it)
+            })
     }
 }

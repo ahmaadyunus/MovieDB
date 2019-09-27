@@ -1,6 +1,7 @@
 package com.yunus.moviedb.repository
 
 import com.yunus.moviedb.data.CreateSessionLoginRequest
+import com.yunus.moviedb.data.GenresResponse
 import com.yunus.moviedb.data.MoviesResponse
 import io.reactivex.Observable
 import retrofit2.http.*
@@ -19,6 +20,10 @@ interface ServiceApi {
     @POST("authentication/session/new")
     fun createSession(@Query("api_key") apiKey: String,
                       @Body request: CreateSessionLoginRequest): Observable<MoviesResponse>
+
+    @Headers("Content-Type: application/json")
+    @GET("genre/movie/list")
+    fun getGenres(@Query("api_key") apiKey: String): Observable<GenresResponse>
 
     @Headers("Content-Type: application/json")
     @GET("movie/popular")

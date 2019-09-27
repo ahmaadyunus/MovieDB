@@ -16,6 +16,7 @@
             android:minHeight="?android:attr/actionBarSize"
             app:tabIndicatorColor="@android:color/white"
             app:tabGravity="fill"
+            app:tabIndicatorHeight="@dimen/space_3"
             app:tabMode="fixed"/>
 
         <androidx.viewpager.widget.ViewPager

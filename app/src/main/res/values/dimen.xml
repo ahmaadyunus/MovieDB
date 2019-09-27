@@ -8,6 +8,8 @@
     <dimen name="btn_like_placeholder_height">24dp</dimen>
 
     <dimen name="space_0">0dp</dimen>
+    <dimen name="space_2">2dp</dimen>
+    <dimen name="space_3">3dp</dimen>
     <dimen name="space_4">4dp</dimen>
     <dimen name="space_6">6dp</dimen>
     <dimen name="space_8">8dp</dimen>

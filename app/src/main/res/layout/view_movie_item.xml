@@ -74,6 +74,8 @@
                     app:layout_constraintRight_toRightOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/btn_like"
                     tools:text="Action, thriller"
+                    android:lines="1"
+                    android:ellipsize="end"
                     android:text="@{rowViewModel.movieGenre}"/>
             </androidx.constraintlayout.widget.ConstraintLayout>
 
