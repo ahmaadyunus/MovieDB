@@ -7,20 +7,26 @@ import com.yunus.moviedb.base.Constants.FAVOURITE
 import com.yunus.moviedb.base.Constants.POPULAR
 import com.yunus.moviedb.base.Constants.TOP_RATED
 import com.yunus.moviedb.data.Genre
+import com.yunus.moviedb.data.Movie
+import com.yunus.moviedb.data.Session
 import com.yunus.moviedb.feature.common.SimpleViewModel
 import com.yunus.moviedb.repository.DashboardRepository
+import com.yunus.moviedb.storage.SimplePreferences
 import org.koin.core.inject
 
 class DashboardViewModel(val app: Application) : BaseViewModel(app) {
-    val repository: DashboardRepository by inject()
+    private val repository: DashboardRepository by inject()
     var favouriteCount = MutableLiveData<Int>()
-    var popularList = mutableListOf<SimpleViewModel>()
-    var topRatedList = mutableListOf<SimpleViewModel>()
-    var favouriteList = mutableListOf<SimpleViewModel>()
+    private var popularList = mutableListOf<SimpleViewModel>()
+    private var topRatedList = mutableListOf<SimpleViewModel>()
+    private var favouriteList = mutableListOf<SimpleViewModel>()
     var genreList = mutableListOf<Genre>()
-    var popularPage = 1
-    var topRatedPage = 1
-    var favouritedPage = 1
+    private var popularPage = 1
+    private var topRatedPage = 1
+    private var favouritedPage = 1
+    private var totalPopularPage = 1
+    private var totalTopRatedPage = 1
+    private var totalFavouritePage = 1
 
     fun resetPage(movieType: String?) {
         when (movieType) {
@@ -56,59 +62,115 @@ class DashboardViewModel(val app: Application) : BaseViewModel(app) {
         }
     }
 
+    fun updateTotalPage(movieType: String?, totalPage: Int){
+        when (movieType) {
+            POPULAR -> totalPopularPage = totalPage
+            TOP_RATED -> totalTopRatedPage = totalPage
+            FAVOURITE -> totalFavouritePage = totalPage
+        }
+    }
+
+    fun isLastPage(movieType: String?): Boolean {
+        return when (movieType) {
+            POPULAR -> popularPage > totalPopularPage + 1
+            TOP_RATED -> topRatedPage > totalTopRatedPage + 1
+            FAVOURITE -> favouritedPage > totalFavouritePage + 1
+            else -> true
+        }
+    }
+
 
     fun getMovies(movieType: String?, page: Int, cbOnSuccess: () -> Unit, cbOnError: (Throwable?) -> Unit) {
        if (genreList.isEmpty()){
            getGenres({
-               getMovieList(movieType, page, cbOnSuccess, cbOnError)
+               prepareGetMovieList(movieType, page, cbOnSuccess, cbOnError)
            },{
                cbOnError(it)
            })
        } else {
-            getMovieList(movieType, page, cbOnSuccess, cbOnError)
+           prepareGetMovieList(movieType, page, cbOnSuccess, cbOnError)
        }
 
     }
 
-    fun getMovieList(movieType: String?, page: Int, cbOnSuccess: () -> Unit, cbOnError: (Throwable?) -> Unit){
-        repository.getMovieList(movieType, page, {
+    fun getGenres(cbOnSuccess: () -> Unit, cbOnError: (Throwable?) -> Unit){
+        repository.getGenres({
+            genreList = it?.genres?.toMutableList() ?: mutableListOf()
+            cbOnSuccess()
+        },{
+            cbOnError(it)
+        })
+    }
+
+    fun prepareGetMovieList(movieType: String?, page: Int, cbOnSuccess: () -> Unit, cbOnError: (Throwable?) -> Unit){
+        if (movieType == FAVOURITE) {
+            if (simplePreferences.isExpiredToken()){
+                createSession(movieType, page, cbOnSuccess, cbOnError)
+            } else {
+                getMovieList(movieType, page, cbOnSuccess, cbOnError, simplePreferences.getSessionId())
+            }
+        } else {
+            getMovieList(movieType, page, cbOnSuccess, cbOnError)
+        }
+    }
+
+    fun createSession(movieType: String?, page: Int, cbOnSuccess: () -> Unit, cbOnError: (Throwable?) -> Unit){
+        repository.createRequestToken({ response ->
+            val session = Session().apply { sessionId = response?.sessionId
+                                            expireAt = response?.expireAt }
+            simplePreferences.saveSession(session)
+            getMovieList(movieType, page, cbOnSuccess, cbOnError, sessionId = simplePreferences.getSessionId())
+        },{
+            cbOnError(it)
+        })
+    }
+
+    fun getMovieList(movieType: String?, page: Int, cbOnSuccess: () -> Unit, cbOnError: (Throwable?) -> Unit, sessionId:String? = ""){
+        repository.getMovieList(sessionId, movieType, page, {
             if (page == 1) {
-                when (movieType) {
-                    POPULAR -> popularList.clear()
-                    TOP_RATED -> topRatedList.clear()
-                    FAVOURITE -> favouriteList.clear()
-                }
+                clearMovieList(movieType)
             }
             it?.movies?.forEach { movie ->
-                var genre = genreList.find { it.id == movie.genreIds[0] }?.name
-                if (movie.genreIds.size > 1) {
-                    movie.genreIds.forEachIndexed { index, it1 ->
-                        if (index > 0) {
-                            genre = genre.plus(", ").plus(genreList.find { it.id == movie.genreIds[index] }?.name)
-                        }
-                    }
-                }
-                when (movieType) {
-                    POPULAR ->  popularList.add(MovieItemViewModel(movie.posterPath, movie.title, genre))
-                    TOP_RATED ->  topRatedList.add(MovieItemViewModel(movie.posterPath, movie.title, genre))
-                    FAVOURITE ->  favouriteList.add(MovieItemViewModel(movie.posterPath, movie.title, genre))
-                }
+                addMovieToList(movieType, movie, getMovieGenre(movie))
             }
             if (movieType.equals(FAVOURITE)) {
-                favouriteCount.value = it?.movies?.size
+                if(page == 1) {
+                    favouriteCount.value = 0
+                }
+                favouriteCount.value = it?.movies?.size?.let { it1 -> favouriteCount.value?.plus(it1) }
             }
+            it?.totalPage?.let { it1 -> updateTotalPage(movieType, it1) }
             cbOnSuccess()
         }, { throwable ->
             cbOnError(throwable)
         })
     }
 
-    fun getGenres(cbOnSuccess: () -> Unit, cbOnError: (Throwable?) -> Unit){
-            repository.getGenres({
-                genreList = it?.genres?.toMutableList() ?: mutableListOf()
-                cbOnSuccess()
-            },{
-                cbOnError(it)
-            })
+    fun clearMovieList(movieType: String?){
+        when (movieType) {
+            POPULAR -> popularList.clear()
+            TOP_RATED -> topRatedList.clear()
+            FAVOURITE -> favouriteList.clear()
+        }
+    }
+
+    fun addMovieToList(movieType: String?, movie: Movie?, genre: String?){
+        when (movieType) {
+            POPULAR ->  popularList.add(MovieItemViewModel(movie?.posterPath, movie?.title, genre))
+            TOP_RATED ->  topRatedList.add(MovieItemViewModel(movie?.posterPath, movie?.title, genre))
+            FAVOURITE ->  favouriteList.add(MovieItemViewModel(movie?.posterPath, movie?.title, genre))
+        }
+    }
+
+    fun getMovieGenre(movie: Movie): String? {
+        var genre = genreList.find { it.id == movie.genreIds[0] }?.name
+        if (movie.genreIds.size > 1) {
+            movie.genreIds.forEachIndexed { index, it1 ->
+                if (index > 0) {
+                    genre = genre.plus(", ").plus(genreList.find { it.id == movie.genreIds[index] }?.name)
+                }
+            }
+        }
+        return genre
     }
 }

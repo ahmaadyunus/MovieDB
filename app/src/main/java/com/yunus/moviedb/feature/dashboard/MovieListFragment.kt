@@ -11,14 +11,14 @@ import com.paginate.Paginate
 import com.yunus.moviedb.R
 import com.yunus.moviedb.base.BaseFragment
 import com.yunus.moviedb.base.Constants.MOVIE_TYPE
-import com.yunus.moviedb.base.Constants.PAGE_LIMIT
 import com.yunus.moviedb.databinding.FragmentMovieListBinding
 import com.yunus.moviedb.feature.common.GenericAppAdapter
 import com.yunus.moviedb.feature.common.SimpleViewModel
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
+import retrofit2.HttpException
+import kotlinx.android.synthetic.main.fragment_movie_list.layout_error as layoutError
 import kotlinx.android.synthetic.main.fragment_movie_list.rv_movie_list as rvMovieList
 import kotlinx.android.synthetic.main.fragment_movie_list.shimmer_layout as shimmerLayout
-import kotlinx.android.synthetic.main.fragment_movie_list.layout_error as layoutError
 import kotlinx.android.synthetic.main.fragment_movie_list.swipe_refresh_layout as swipeRefreshLayout
 
 
@@ -28,7 +28,11 @@ class MovieListFragment : BaseFragment(), Paginate.Callbacks, SwipeRefreshLayout
     private lateinit var adapter: GenericAppAdapter<SimpleViewModel>
     private var isLoading = false
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_movie_list, container, false)
         return binding.root
     }
@@ -50,19 +54,25 @@ class MovieListFragment : BaseFragment(), Paginate.Callbacks, SwipeRefreshLayout
             setShimmer(false)
             if (page == 1) {
                 setupList()
+                viewModel.updatePage(arguments?.getString(MOVIE_TYPE, ""))
             } else {
                 adapter.notifyDataSetChanged()
             }
             isLoading = false
             swipeRefreshLayout.isRefreshing = false
-            viewModel.updatePage(arguments?.getString(MOVIE_TYPE, ""))
             rvMovieList.visibility = View.VISIBLE
         }, {
-            setShimmer(false)
-            isLoading = false
-            swipeRefreshLayout.isRefreshing = false
-            layoutError.visibility = View.VISIBLE
-            rvMovieList.visibility = View.GONE
+            if (it is HttpException) {
+                if (it.code() == 422) {
+                    adapter.notifyDataSetChanged()
+                }
+            } else {
+                setShimmer(false)
+                isLoading = false
+                swipeRefreshLayout.isRefreshing = false
+                layoutError.visibility = View.VISIBLE
+                rvMovieList.visibility = View.GONE
+            }
         })
 
     }
@@ -99,12 +109,12 @@ class MovieListFragment : BaseFragment(), Paginate.Callbacks, SwipeRefreshLayout
         }
     }
 
-    override fun hasLoadedAllItems(): Boolean =
-        viewModel.getPage(arguments?.getString(MOVIE_TYPE, "")) > PAGE_LIMIT
+    override fun hasLoadedAllItems(): Boolean = viewModel.isLastPage(arguments?.getString(MOVIE_TYPE, ""))
 
     override fun isLoading(): Boolean = isLoading
 
     override fun onLoadMore() {
         getData(viewModel.getPage(arguments?.getString(MOVIE_TYPE, "")))
+        viewModel.updatePage(arguments?.getString(MOVIE_TYPE, ""))
     }
 }

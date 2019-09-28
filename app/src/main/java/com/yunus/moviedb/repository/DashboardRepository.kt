@@ -2,24 +2,25 @@ package com.yunus.moviedb.repository
 
 import com.yunus.moviedb.BuildConfig
 import com.yunus.moviedb.base.Constants
-import com.yunus.moviedb.data.GenresResponse
-import com.yunus.moviedb.data.MoviesResponse
+import com.yunus.moviedb.data.*
 import com.yunus.moviedb.extension.getStringResWithAppContext
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.observers.DisposableObserver
 import io.reactivex.schedulers.Schedulers
+import retrofit2.HttpException
 import java.net.UnknownHostException
 
 class DashboardRepository(private val serviceApi: ServiceApi) {
 
     fun getMovieList(
+        sessionId: String?,
         movieType: String?,
         page: Int,
         cbOnResult: (MoviesResponse?) -> Unit,
         cbOnError: (Throwable?) -> Unit
     ) {
-        getTrendingRepoAPI(movieType, page).subscribeOn(Schedulers.io())
+        getMovieListAPI(sessionId, movieType, page).subscribeOn(Schedulers.io())
             .observeOn(Schedulers.newThread()).observeOn(AndroidSchedulers.mainThread())
             .subscribe(object : DisposableObserver<MoviesResponse>() {
                 override fun onComplete() {
@@ -27,7 +28,7 @@ class DashboardRepository(private val serviceApi: ServiceApi) {
                 }
 
                 override fun onError(e: Throwable?) {
-                    if (e is UnknownHostException) {
+                    if (e is UnknownHostException || e is HttpException) {
                         cbOnError(e)
                     } else {
                         cbOnError(Throwable(getStringResWithAppContext("something_went_wrong")))
@@ -41,13 +42,13 @@ class DashboardRepository(private val serviceApi: ServiceApi) {
             })
     }
 
-    private fun getTrendingRepoAPI(movieType: String?, page: Int): Observable<MoviesResponse> {
+    private fun getMovieListAPI(sessionId:String?, movieType: String?, page: Int): Observable<MoviesResponse> {
         return when (movieType) {
             Constants.POPULAR -> serviceApi.getPopularMovies(BuildConfig.API_KEY, page)
             Constants.TOP_RATED -> serviceApi.getTopRatedMovies(BuildConfig.API_KEY, page)
             Constants.FAVOURITE -> serviceApi.getFavorited(
                 BuildConfig.API_KEY,
-                "",
+                sessionId,
                 "created_at.asc",
                 page
             )
@@ -81,5 +82,91 @@ class DashboardRepository(private val serviceApi: ServiceApi) {
 
     private fun getGenresAPI(): Observable<GenresResponse> {
         return serviceApi.getGenres(BuildConfig.API_KEY)
+    }
+
+    fun createRequestToken(cbOnResult: (CreateRequestTokenResponse?) -> Unit, cbOnError: (Throwable?) -> Unit) {
+        createRequestTokenAPI().subscribeOn(Schedulers.io())
+            .observeOn(Schedulers.newThread()).observeOn(AndroidSchedulers.mainThread())
+            .subscribe(object : DisposableObserver<CreateRequestTokenResponse>() {
+                override fun onComplete() {
+                    dispose()
+                }
+
+                override fun onError(e: Throwable?) {
+                    if (e is UnknownHostException) {
+                        cbOnError(e)
+                    } else {
+                        cbOnError(Throwable(getStringResWithAppContext("something_went_wrong")))
+                    }
+                    dispose()
+                }
+
+                override fun onNext(value: CreateRequestTokenResponse?) {
+                    value?.requestToken?.let { createSessionWithLogin(it, cbOnResult, cbOnError) }
+                }
+            })
+    }
+
+    private fun createRequestTokenAPI(): Observable<CreateRequestTokenResponse> {
+        return serviceApi.createRequestToken(BuildConfig.API_KEY)
+    }
+
+    fun createSessionWithLogin(requestToken: String, cbOnResult: (CreateRequestTokenResponse?) -> Unit, cbOnError: (Throwable?) -> Unit) {
+        createSessionWithLoginAPI(requestToken).subscribeOn(Schedulers.io())
+            .observeOn(Schedulers.newThread()).observeOn(AndroidSchedulers.mainThread())
+            .subscribe(object : DisposableObserver<CreateRequestTokenResponse>() {
+                override fun onComplete() {
+                    dispose()
+                }
+
+                override fun onError(e: Throwable?) {
+                    if (e is UnknownHostException) {
+                        cbOnError(e)
+                    } else {
+                        cbOnError(Throwable(getStringResWithAppContext("something_went_wrong")))
+                    }
+                    dispose()
+                }
+
+                override fun onNext(value: CreateRequestTokenResponse?) {
+                    value?.requestToken?.let { createSession(it, { response ->
+                        response?.expireAt = value.expireAt
+                        cbOnResult(response)
+                    }, cbOnError) }
+                }
+            })
+    }
+
+    private fun createSessionWithLoginAPI(requestToken: String): Observable<CreateRequestTokenResponse> {
+        val request = CreateSessionLoginRequest(BuildConfig.USERNAME, BuildConfig.PASSWORD, requestToken)
+        return serviceApi.createSessionWithLogin(BuildConfig.API_KEY, request)
+    }
+
+    fun createSession(requestToken: String, cbOnResult: (CreateRequestTokenResponse?) -> Unit, cbOnError: (Throwable?) -> Unit) {
+        createSessionAPI(requestToken).subscribeOn(Schedulers.io())
+            .observeOn(Schedulers.newThread()).observeOn(AndroidSchedulers.mainThread())
+            .subscribe(object : DisposableObserver<CreateRequestTokenResponse>() {
+                override fun onComplete() {
+                    dispose()
+                }
+
+                override fun onError(e: Throwable?) {
+                    if (e is UnknownHostException) {
+                        cbOnError(e)
+                    } else {
+                        cbOnError(Throwable(getStringResWithAppContext("something_went_wrong")))
+                    }
+                    dispose()
+                }
+
+                override fun onNext(value: CreateRequestTokenResponse?) {
+                    cbOnResult(value)
+                }
+            })
+    }
+
+    private fun createSessionAPI(requestToken: String): Observable<CreateRequestTokenResponse> {
+        val request = CreateSessionLoginRequest(requestToken = requestToken)
+        return serviceApi.createSession(BuildConfig.API_KEY, request)
     }
 }

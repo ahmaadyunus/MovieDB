@@ -1,5 +1,6 @@
 package com.yunus.moviedb.repository
 
+import com.yunus.moviedb.data.CreateRequestTokenResponse
 import com.yunus.moviedb.data.CreateSessionLoginRequest
 import com.yunus.moviedb.data.GenresResponse
 import com.yunus.moviedb.data.MoviesResponse
@@ -9,17 +10,17 @@ import retrofit2.http.*
 interface ServiceApi {
     @Headers("Content-Type: application/json")
     @GET("authentication/token/new")
-    fun createAccessToken(@Query("api_key") apiKey: String): Observable<MoviesResponse>
+    fun createRequestToken(@Query("api_key") apiKey: String): Observable<CreateRequestTokenResponse>
 
     @Headers("Content-Type: application/json")
     @POST("authentication/token/validate_with_login")
-    fun createAccessTokenWithLogin(@Query("api_key") apiKey: String,
-                                   @Body request: CreateSessionLoginRequest): Observable<MoviesResponse>
+    fun createSessionWithLogin(@Query("api_key") apiKey: String,
+                                   @Body request: CreateSessionLoginRequest): Observable<CreateRequestTokenResponse>
 
     @Headers("Content-Type: application/json")
     @POST("authentication/session/new")
     fun createSession(@Query("api_key") apiKey: String,
-                      @Body request: CreateSessionLoginRequest): Observable<MoviesResponse>
+                      @Body request: CreateSessionLoginRequest): Observable<CreateRequestTokenResponse>
 
     @Headers("Content-Type: application/json")
     @GET("genre/movie/list")
@@ -38,7 +39,7 @@ interface ServiceApi {
     @Headers("Content-Type: application/json")
     @GET("account/150419/favorite/movies")
     fun getFavorited(@Query("api_key") apiKey: String,
-                     @Query("session_id") sessionId: String,
+                     @Query("session_id") sessionId: String?,
                      @Query("sort_by") sortBy: String,
                           @Query("page") page: Int): Observable<MoviesResponse>
 }

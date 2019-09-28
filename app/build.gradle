@@ -28,6 +28,8 @@ android {
         buildConfigField 'String', 'BASE_URL', endpointProperties['BASE_URL']
         buildConfigField 'String', 'API_KEY', endpointProperties['API_KEY']
         buildConfigField 'String', 'LOAD_IMAGE_URL', endpointProperties['LOAD_IMAGE_URL']
+        buildConfigField 'String', 'USERNAME', endpointProperties['USERNAME']
+        buildConfigField 'String', 'PASSWORD', endpointProperties['PASSWORD']
     }
 
     dataBinding {
