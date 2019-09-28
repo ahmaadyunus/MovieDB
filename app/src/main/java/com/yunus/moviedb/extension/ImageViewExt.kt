@@ -19,3 +19,15 @@ fun ImageView.urCircleImage(imageSource: String, placeholder: Int) {
         .apply(RequestOptions().centerCrop().placeholder(placeholder))
         .into(this)
 }
+
+@BindingAdapter("loadResource")
+fun ImageView.loadResource(imageSource: Int) {
+    loadResourceImage(imageSource, R.drawable.bg_placeholder)
+}
+
+fun ImageView.loadResourceImage(imageId: Int, placeholder: Int) {
+    Glide.with(context)
+        .load(imageId)
+        .apply(RequestOptions().centerCrop().placeholder(placeholder))
+        .into(this)
+}

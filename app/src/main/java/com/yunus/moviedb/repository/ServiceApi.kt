@@ -1,10 +1,8 @@
 package com.yunus.moviedb.repository
 
-import com.yunus.moviedb.data.CreateRequestTokenResponse
-import com.yunus.moviedb.data.CreateSessionLoginRequest
-import com.yunus.moviedb.data.GenresResponse
-import com.yunus.moviedb.data.MoviesResponse
+import com.yunus.moviedb.data.*
 import io.reactivex.Observable
+import okhttp3.Response
 import retrofit2.http.*
 
 interface ServiceApi {
@@ -42,4 +40,12 @@ interface ServiceApi {
                      @Query("session_id") sessionId: String?,
                      @Query("sort_by") sortBy: String,
                           @Query("page") page: Int): Observable<MoviesResponse>
+
+    @Headers("Content-Type: application/json")
+    @POST("account/150419/favorite")
+    fun makeFavourite(@Query("api_key") apiKey: String,
+                     @Query("session_id") sessionId: String?,
+                     @Body request: MakeFavouriteRequest?): Observable<MakeFavouriteResponse>
+
+
 }

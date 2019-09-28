@@ -18,8 +18,20 @@ data class Genre(
 )
 
 data class Movie(
+    @SerializedName("id") var id: Int?,
     @SerializedName("original_title") var originalTitle: String?,
     @SerializedName("title") var title: String?,
     @SerializedName("poster_path") var posterPath: String?,
     @SerializedName("genre_ids") var genreIds: List<Int>
+)
+
+data class MakeFavouriteRequest(
+    @SerializedName("media_type") var mediaType: String?,
+    @SerializedName("media_id") var mediaId: Int?,
+    @SerializedName("favorite") var isFavourite: Boolean?
+)
+
+data class MakeFavouriteResponse(
+    @SerializedName("status_code") var statusCode: Int?,
+    @SerializedName("status_message") var statusMessage: String?
 )

@@ -10,4 +10,5 @@ object Constants {
     const val POPULAR = "popular"
     const val TOP_RATED = "top-rated"
     const val FAVOURITE = "favourite"
+    const val MOVIE = "movie"
 }

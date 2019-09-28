@@ -2,6 +2,7 @@ package com.yunus.moviedb.feature.dashboard
 
 import android.app.Application
 import androidx.lifecycle.MutableLiveData
+import com.yunus.moviedb.R
 import com.yunus.moviedb.base.BaseViewModel
 import com.yunus.moviedb.base.Constants.FAVOURITE
 import com.yunus.moviedb.base.Constants.POPULAR
@@ -11,7 +12,6 @@ import com.yunus.moviedb.data.Movie
 import com.yunus.moviedb.data.Session
 import com.yunus.moviedb.feature.common.SimpleViewModel
 import com.yunus.moviedb.repository.DashboardRepository
-import com.yunus.moviedb.storage.SimplePreferences
 import org.koin.core.inject
 
 class DashboardViewModel(val app: Application) : BaseViewModel(app) {
@@ -80,15 +80,15 @@ class DashboardViewModel(val app: Application) : BaseViewModel(app) {
     }
 
 
-    fun getMovies(movieType: String?, page: Int, cbOnSuccess: () -> Unit, cbOnError: (Throwable?) -> Unit) {
+    fun getMovies(movieType: String?, page: Int, cbOnSuccess: () -> Unit, cbOnError: (Throwable?) -> Unit, cbChange: () -> Unit) {
        if (genreList.isEmpty()){
            getGenres({
-               prepareGetMovieList(movieType, page, cbOnSuccess, cbOnError)
+               prepareGetMovieList(movieType, page, cbOnSuccess, cbOnError, cbChange)
            },{
                cbOnError(it)
            })
        } else {
-           prepareGetMovieList(movieType, page, cbOnSuccess, cbOnError)
+           prepareGetMovieList(movieType, page, cbOnSuccess, cbOnError, cbChange )
        }
 
     }
@@ -102,36 +102,38 @@ class DashboardViewModel(val app: Application) : BaseViewModel(app) {
         })
     }
 
-    fun prepareGetMovieList(movieType: String?, page: Int, cbOnSuccess: () -> Unit, cbOnError: (Throwable?) -> Unit){
+    fun prepareGetMovieList(movieType: String?, page: Int, cbOnSuccess: () -> Unit, cbOnError: (Throwable?) -> Unit, cbChange: () -> Unit){
         if (movieType == FAVOURITE) {
             if (simplePreferences.isExpiredToken()){
-                createSession(movieType, page, cbOnSuccess, cbOnError)
+                createSession({
+                    getMovieList(movieType, page, cbOnSuccess, cbOnError, sessionId = simplePreferences.getSessionId(), cbChange = cbChange)
+                }, cbOnError)
             } else {
-                getMovieList(movieType, page, cbOnSuccess, cbOnError, simplePreferences.getSessionId())
+                getMovieList(movieType, page, cbOnSuccess, cbOnError, simplePreferences.getSessionId(), cbChange = cbChange)
             }
         } else {
-            getMovieList(movieType, page, cbOnSuccess, cbOnError)
+            getMovieList(movieType, page, cbOnSuccess, cbOnError, cbChange = cbChange)
         }
     }
 
-    fun createSession(movieType: String?, page: Int, cbOnSuccess: () -> Unit, cbOnError: (Throwable?) -> Unit){
+    fun createSession(cbOnSuccess: () -> Unit, cbOnError: (Throwable?) -> Unit){
         repository.createRequestToken({ response ->
             val session = Session().apply { sessionId = response?.sessionId
                                             expireAt = response?.expireAt }
             simplePreferences.saveSession(session)
-            getMovieList(movieType, page, cbOnSuccess, cbOnError, sessionId = simplePreferences.getSessionId())
+            cbOnSuccess.invoke()
         },{
             cbOnError(it)
         })
     }
 
-    fun getMovieList(movieType: String?, page: Int, cbOnSuccess: () -> Unit, cbOnError: (Throwable?) -> Unit, sessionId:String? = ""){
+    fun getMovieList(movieType: String?, page: Int, cbOnSuccess: () -> Unit, cbOnError: (Throwable?) -> Unit, sessionId:String? = "", cbChange: () -> Unit){
         repository.getMovieList(sessionId, movieType, page, {
             if (page == 1) {
                 clearMovieList(movieType)
             }
             it?.movies?.forEach { movie ->
-                addMovieToList(movieType, movie, getMovieGenre(movie))
+                addMovieToList(movieType, movie, getMovieGenre(movie), cbChange)
             }
             if (movieType.equals(FAVOURITE)) {
                 if(page == 1) {
@@ -154,11 +156,25 @@ class DashboardViewModel(val app: Application) : BaseViewModel(app) {
         }
     }
 
-    fun addMovieToList(movieType: String?, movie: Movie?, genre: String?){
+    fun addMovieToList(movieType: String?, movie: Movie?, genre: String?, cbChange:() -> Unit){
         when (movieType) {
-            POPULAR ->  popularList.add(MovieItemViewModel(movie?.posterPath, movie?.title, genre))
-            TOP_RATED ->  topRatedList.add(MovieItemViewModel(movie?.posterPath, movie?.title, genre))
-            FAVOURITE ->  favouriteList.add(MovieItemViewModel(movie?.posterPath, movie?.title, genre))
+            POPULAR ->  popularList.add(MovieItemViewModel(movie?.id, movie?.posterPath, movie?.title, genre){ vm ->
+                val isLikedTemp = vm.isLiked
+                cbChange.invoke()
+                makeFavourite(vm.movieId, !isLikedTemp, {
+
+                }, {
+
+                    vm.isLiked = isLikedTemp
+                    cbChange.invoke()
+                })
+            })
+            TOP_RATED ->  topRatedList.add(MovieItemViewModel(movie?.id, movie?.posterPath, movie?.title, genre) { vm ->
+
+            })
+            FAVOURITE ->  favouriteList.add(MovieItemViewModel(movie?.id, movie?.posterPath, movie?.title, isLiked = true, movieGenre = genre, btnLikeDrawable = R.drawable.ic_like_active) { vm ->
+
+            })
         }
     }
 
@@ -172,5 +188,17 @@ class DashboardViewModel(val app: Application) : BaseViewModel(app) {
             }
         }
         return genre
+    }
+
+    fun makeFavourite(mediaId : Int?, isFavourite: Boolean?, cbOnResult:() -> Unit, cbOnError: (Throwable?) -> Unit){
+        if (simplePreferences.isExpiredToken()){
+            createSession({
+               repository.makeFavourite(simplePreferences.getSessionId(), mediaId, isFavourite, cbOnResult, cbOnError)
+            }, cbOnError)
+        } else {
+            repository.makeFavourite(simplePreferences.getSessionId(), mediaId, isFavourite, cbOnResult, cbOnError)
+        }
+
+
     }
 }

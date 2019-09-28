@@ -73,6 +73,8 @@ class MovieListFragment : BaseFragment(), Paginate.Callbacks, SwipeRefreshLayout
                 layoutError.visibility = View.VISIBLE
                 rvMovieList.visibility = View.GONE
             }
+        },{
+            adapter.notifyDataSetChanged()
         })
 
     }

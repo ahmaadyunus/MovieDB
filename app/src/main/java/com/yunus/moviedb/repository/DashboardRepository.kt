@@ -2,12 +2,14 @@ package com.yunus.moviedb.repository
 
 import com.yunus.moviedb.BuildConfig
 import com.yunus.moviedb.base.Constants
+import com.yunus.moviedb.base.Constants.MOVIE
 import com.yunus.moviedb.data.*
 import com.yunus.moviedb.extension.getStringResWithAppContext
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.observers.DisposableObserver
 import io.reactivex.schedulers.Schedulers
+import okhttp3.Response
 import retrofit2.HttpException
 import java.net.UnknownHostException
 
@@ -168,5 +170,33 @@ class DashboardRepository(private val serviceApi: ServiceApi) {
     private fun createSessionAPI(requestToken: String): Observable<CreateRequestTokenResponse> {
         val request = CreateSessionLoginRequest(requestToken = requestToken)
         return serviceApi.createSession(BuildConfig.API_KEY, request)
+    }
+
+    fun makeFavourite(sessionId: String?, mediaId: Int?, isFavourite: Boolean?, cbOnResult:() -> Unit, cbOnError: (Throwable?) -> Unit){
+        makeFavouriteAPI(sessionId, mediaId, isFavourite).subscribeOn(Schedulers.io())
+            .observeOn(Schedulers.newThread()).observeOn(AndroidSchedulers.mainThread())
+            .subscribe(object : DisposableObserver<MakeFavouriteResponse>() {
+                override fun onComplete() {
+                    dispose()
+                }
+
+                override fun onError(e: Throwable?) {
+                    if (e is UnknownHostException) {
+                        cbOnError(e)
+                    } else {
+                        cbOnError(Throwable(getStringResWithAppContext("something_went_wrong")))
+                    }
+                    dispose()
+                }
+
+                override fun onNext(value: MakeFavouriteResponse?) {
+                    cbOnResult()
+                }
+            })
+    }
+
+    private fun makeFavouriteAPI(sessionId: String?, mediaId: Int?, isFavourite: Boolean?): Observable<MakeFavouriteResponse>{
+        val request = MakeFavouriteRequest(MOVIE, mediaId, isFavourite)
+        return serviceApi.makeFavourite(BuildConfig.API_KEY, sessionId, request)
     }
 }
