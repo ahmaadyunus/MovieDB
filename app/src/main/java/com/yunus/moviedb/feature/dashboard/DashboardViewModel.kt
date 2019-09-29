@@ -18,16 +18,16 @@ import org.koin.core.inject
 open class DashboardViewModel(open val app: Application) : BaseViewModel(app) {
     val repository: DashboardRepository by inject()
     var favouriteCount = MutableLiveData<Int>()
-    private var popularList = mutableListOf<SimpleViewModel>()
-    private var topRatedList = mutableListOf<SimpleViewModel>()
-    private var favouriteList = mutableListOf<SimpleViewModel>()
+    var popularList = mutableListOf<SimpleViewModel>()
+    var topRatedList = mutableListOf<SimpleViewModel>()
+    var favouriteList = mutableListOf<SimpleViewModel>()
     var genreList = mutableListOf<Genre>()
-    private var popularPage = 1
-    private var topRatedPage = 1
-    private var favouritedPage = 1
-    private var totalPopularPage = 1
-    private var totalTopRatedPage = 1
-    private var totalFavouritePage = 1
+    var popularPage = 1
+    var topRatedPage = 1
+    var favouritedPage = 1
+    var totalPopularPage = 1
+    var totalTopRatedPage = 1
+    var totalFavouritePage = 1
 
     fun resetPage(movieType: String?) {
         when (movieType) {
