@@ -8,5 +8,6 @@
     <color name="colorGreyText">#929292</color>
     <color name="colorPlaceHolder">#BFBFBF</color>
     <color name="colorRed">#FF0000</color>
+    <color name="blackTransparent1">#32000000</color>
 
 </resources>

@@ -199,4 +199,31 @@ class DashboardRepository(private val serviceApi: ServiceApi) {
         val request = MakeFavouriteRequest(MOVIE, mediaId, isFavourite)
         return serviceApi.makeFavourite(BuildConfig.API_KEY, sessionId, request)
     }
+
+    fun getMovieDetails(movieId: Int?, cbOnResult:(MovieDetailsResponse?) -> Unit, cbOnError: (Throwable?) -> Unit){
+        getMovieDetailsAPI(movieId).subscribeOn(Schedulers.io())
+            .observeOn(Schedulers.newThread()).observeOn(AndroidSchedulers.mainThread())
+            .subscribe(object : DisposableObserver<MovieDetailsResponse>() {
+                override fun onComplete() {
+                    dispose()
+                }
+
+                override fun onError(e: Throwable?) {
+                    if (e is UnknownHostException) {
+                        cbOnError(e)
+                    } else {
+                        cbOnError(Throwable(getStringResWithAppContext("something_went_wrong")))
+                    }
+                    dispose()
+                }
+
+                override fun onNext(value: MovieDetailsResponse?) {
+                    cbOnResult(value)
+                }
+            })
+    }
+
+    private fun getMovieDetailsAPI(movieId: Int?): Observable<MovieDetailsResponse>{
+        return serviceApi.getMovieDetails(movieId, BuildConfig.API_KEY)
+    }
 }

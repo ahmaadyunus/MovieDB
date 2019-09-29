@@ -10,10 +10,14 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.paginate.Paginate
 import com.yunus.moviedb.R
 import com.yunus.moviedb.base.BaseFragment
+import com.yunus.moviedb.base.Constants.IS_LIKED
+import com.yunus.moviedb.base.Constants.MOVIE_ID
 import com.yunus.moviedb.base.Constants.MOVIE_TYPE
+import com.yunus.moviedb.control.ActivityController
 import com.yunus.moviedb.databinding.FragmentMovieListBinding
 import com.yunus.moviedb.feature.common.GenericAppAdapter
 import com.yunus.moviedb.feature.common.SimpleViewModel
+import com.yunus.moviedb.feature.moviedetails.MovieDetailsActivity
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 import retrofit2.HttpException
 import kotlinx.android.synthetic.main.fragment_movie_list.layout_error as layoutError
@@ -75,6 +79,13 @@ class MovieListFragment : BaseFragment(), Paginate.Callbacks, SwipeRefreshLayout
             }
         },{
             adapter.notifyDataSetChanged()
+        }, { id, isLiked ->
+            id?.let { it1 ->
+                bundle.putInt(MOVIE_ID, it1)
+                bundle.putBoolean(IS_LIKED, isLiked)
+                ActivityController.navigateToWithBundle(activity, MovieDetailsActivity::class.java, bundle = bundle
+                )
+            }
         })
 
     }

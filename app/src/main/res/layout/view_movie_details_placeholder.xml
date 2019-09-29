@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <import type="android.view.View" />
+
+        <variable
+            name="viewModel"
+            type="com.yunus.moviedb.feature.dashboard.MovieDetailsViewModel" />
+    </data>
+
+   
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@android:color/white"
+        android:orientation="vertical">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <View
+                android:id="@+id/guideline"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/space_24"
+                app:layout_constraintBottom_toBottomOf="@+id/img_backdrop_placeholder"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent" />
+
+            <View
+                android:id="@+id/img_backdrop_placeholder"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:background="@color/colorPlaceHolder"
+                app:layout_constraintDimensionRatio="16:8"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:background="@drawable/bg_gradient_black_top"
+                app:layout_constraintBottom_toBottomOf="@+id/img_backdrop_placeholder"
+                app:layout_constraintLeft_toLeftOf="@+id/img_backdrop_placeholder"
+                app:layout_constraintRight_toRightOf="@id/img_backdrop_placeholder"
+                app:layout_constraintTop_toTopOf="@+id/img_backdrop_placeholder" />
+
+            <View
+                android:id="@+id/img_poster_placeholder"
+                android:layout_width="100dp"
+                android:layout_height="0dp"
+                android:background="@color/colorPlaceHolder"
+                android:layout_marginLeft="@dimen/space_16"
+                app:layout_constraintDimensionRatio="10:16"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/guideline" />
+
+            <View
+                android:id="@+id/tv_movie_title"
+                android:layout_width="0dp"
+                android:layout_height="@dimen/space_12"
+                android:layout_margin="@dimen/space_16"
+                app:layout_constraintLeft_toRightOf="@+id/img_poster_placeholder"
+                app:layout_constraintRight_toLeftOf="@+id/btn_like_placeholder"
+                app:layout_constraintTop_toBottomOf="@+id/img_backdrop_placeholder"
+                android:background="@drawable/bg_placeholder" />
+
+            <View
+                android:id="@+id/btn_like_placeholder"
+                android:layout_width="25dp"
+                android:layout_height="25dp"
+                android:layout_marginRight="@dimen/space_16"
+                android:gravity="center"
+                android:background="@drawable/bg_placeholder"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/tv_movie_title" />
+
+            <View
+                android:id="@+id/tv_vote_average_placeholder"
+                android:layout_width="@dimen/width_textview_placeholder"
+                android:layout_height="@dimen/space_8"
+                android:layout_marginTop="@dimen/space_8"
+                app:layout_constraintLeft_toLeftOf="@+id/tv_movie_title"
+                app:layout_constraintTop_toBottomOf="@+id/tv_movie_title"
+                android:background="@drawable/bg_placeholder"/>
+
+
+            <View
+                android:id="@+id/tv_vote_placeholder"
+                android:layout_width="@dimen/width_textview_placeholder"
+                android:layout_height="@dimen/space_8"
+                android:layout_marginTop="@dimen/space_8"
+                app:layout_constraintLeft_toLeftOf="@+id/tv_movie_title"
+                app:layout_constraintTop_toBottomOf="@+id/tv_vote_average_placeholder"
+                android:background="@drawable/bg_placeholder" />
+
+            <View
+                android:id="@+id/tv_release_placeholder"
+                android:layout_width="@dimen/width_textview_placeholder"
+                android:layout_height="@dimen/space_8"
+                android:layout_marginTop="@dimen/space_8"
+                app:layout_constraintLeft_toLeftOf="@+id/tv_movie_title"
+                app:layout_constraintTop_toBottomOf="@+id/tv_vote_placeholder"
+                android:background="@drawable/bg_placeholder" />
+
+            <View
+                android:id="@+id/tv_language_placeholder"
+                android:layout_width="@dimen/width_textview_placeholder"
+                android:layout_height="@dimen/space_8"
+                android:layout_marginTop="@dimen/space_8"
+                app:layout_constraintLeft_toLeftOf="@+id/tv_movie_title"
+                app:layout_constraintTop_toBottomOf="@+id/tv_release_placeholder"
+                android:background="@drawable/bg_placeholder"  />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/space_16"
+            android:layout_marginTop="@dimen/space_16"
+            android:layout_marginRight="@dimen/space_16"
+            app:cardCornerRadius="@dimen/space_4"
+            app:cardElevation="@dimen/space_4">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <View
+                    android:layout_width="@dimen/width_textview_placeholder"
+                    android:layout_height="@dimen/space_12"
+                    android:layout_margin="@dimen/space_16"
+                    android:text="@string/overview"
+                    android:background="@drawable/bg_placeholder" />
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/space_8"
+                    android:layout_marginLeft="@dimen/space_16"
+                    android:layout_marginRight="@dimen/space_16"
+                    android:layout_marginBottom="@dimen/space_4"
+                    app:layout_constraintLeft_toLeftOf="@+id/tv_movie_title"
+                    app:layout_constraintTop_toBottomOf="@+id/tv_release_placeholder"
+                    android:background="@drawable/bg_placeholder" />
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/space_8"
+                    android:layout_marginLeft="@dimen/space_16"
+                    android:layout_marginRight="@dimen/space_16"
+                    android:layout_marginBottom="@dimen/space_4"
+                    app:layout_constraintLeft_toLeftOf="@+id/tv_movie_title"
+                    app:layout_constraintTop_toBottomOf="@+id/tv_release_placeholder"
+                    android:background="@drawable/bg_placeholder" />
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/space_8"
+                    android:layout_marginLeft="@dimen/space_16"
+                    android:layout_marginRight="@dimen/space_16"
+                    android:layout_marginBottom="@dimen/space_4"
+                    app:layout_constraintLeft_toLeftOf="@+id/tv_movie_title"
+                    app:layout_constraintTop_toBottomOf="@+id/tv_release_placeholder"
+                    android:background="@drawable/bg_placeholder" />
+                <View
+                    android:layout_width="@dimen/width_textview_placeholder"
+                    android:layout_height="@dimen/space_8"
+                    android:layout_marginLeft="@dimen/space_16"
+                    android:layout_marginRight="@dimen/space_16"
+                    android:layout_marginBottom="@dimen/space_4"
+                    app:layout_constraintLeft_toLeftOf="@+id/tv_movie_title"
+                    app:layout_constraintTop_toBottomOf="@+id/tv_release_placeholder"
+                    android:background="@drawable/bg_placeholder" />
+            </LinearLayout>
+
+        </androidx.cardview.widget.CardView>
+
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/space_16"
+            android:layout_marginTop="@dimen/space_16"
+            android:layout_marginRight="@dimen/space_16"
+            android:layout_marginBottom="@dimen/space_16"
+            app:cardCornerRadius="@dimen/space_4"
+            app:cardElevation="@dimen/space_4">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <View
+                    android:layout_width="@dimen/width_textview_placeholder"
+                    android:layout_height="@dimen/space_12"
+                    android:layout_margin="@dimen/space_16"
+                    android:text="@string/overview"
+                    android:background="@drawable/bg_placeholder"  />
+
+            </LinearLayout>
+
+        </androidx.cardview.widget.CardView>
+
+
+    </LinearLayout>
+
+</layout>

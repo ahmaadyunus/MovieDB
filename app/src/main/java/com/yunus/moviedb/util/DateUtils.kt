@@ -3,11 +3,9 @@ package com.yunus.moviedb.util
 import java.text.SimpleDateFormat
 import java.util.*
 
-object DateUtils {
-    const val YYYY_MM_DD_HH_MM = "yyyy-MM-dd HH:mm"
-    const val EEEE_DD_MM_YYYY = "EEEE, dd MMM yyyy"
+object DateUtils{
     const val YYYY_MM_DD = "yyyy-MM-dd"
-    const val EEEE = "EEEE"
+    const val DD_MMM_YYYY = "dd MMM yyyy"
     const val YYY_MM_DD_HH_MM_SS_Z = "yyyy-MM-dd HH:mm:ss z"
 
     fun formateDate(dateString: String?, initialPattern: String, newPattern: String): String {

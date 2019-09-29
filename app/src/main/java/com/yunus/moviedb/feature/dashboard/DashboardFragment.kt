@@ -56,6 +56,7 @@ class DashboardFragment : BaseFragment() {
 
         vp_dashboard.adapter = pagerAdapter
         vp_dashboard.addOnPageChangeListener(TabLayout.TabLayoutOnPageChangeListener(tab_layout))
+        vp_dashboard.offscreenPageLimit = 2
 
         tab_layout.setupWithViewPager(vp_dashboard)
         tab_layout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {

@@ -4,4 +4,9 @@
     <string name="top_rated">Top Rated</string>
     <string name="favourite">Favourite</string>
     <string name="something_went_wrong">Something went wrong.\nPlease refresh or try again later ..</string>
+    <string name="overview">Overview</string>
+    <string name="trailers">Trailers</string>
+    <string name="votes">Votes</string>
+    <string name="share_prefix">Hi, please find this cool movie : \n</string>
+
 </resources>

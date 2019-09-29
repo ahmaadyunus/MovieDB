@@ -23,11 +23,22 @@
         <item name="android:textAllCaps">true</item>
     </style>
 
+    <style name="MovieDetailsTitleText" parent="BlackText">
+        <item name="android:textSize">@dimen/text_16</item>
+        <item name="android:fontFamily">@font/roboto</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
     <style name="MovieTitleText" parent="BlackText">
         <item name="android:textSize">@dimen/text_12</item>
         <item name="android:fontFamily">@font/roboto_medium</item>
 
     </style>
+    <style name="MovieDetailsText" parent="GreyText">
+        <item name="android:textSize">@dimen/text_12</item>
+        <item name="android:fontFamily">@font/roboto_medium</item>
+    </style>
+
     <style name="MovieCategoryText" parent="GreyText">
         <item name="android:textSize">@dimen/text_8</item>
         <item name="android:fontFamily">@font/roboto</item>

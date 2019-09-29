@@ -10,19 +10,23 @@ import com.yunus.moviedb.R
 
 @BindingAdapter("loadImage")
 fun ImageView.loadImage(imageSource: String) {
-    urCircleImage(imageSource, R.drawable.bg_placeholder)
+        urlImg(imageSource, R.drawable.bg_placeholder)
 }
 
-fun ImageView.urCircleImage(imageSource: String, placeholder: Int) {
+fun ImageView.urlImg(imageSource: String, placeholder: Int) {
     Glide.with(context)
         .load(BuildConfig.LOAD_IMAGE_URL.plus(imageSource.filterEmpty()))
         .apply(RequestOptions().centerCrop().placeholder(placeholder))
         .into(this)
 }
 
-@BindingAdapter("loadResource")
-fun ImageView.loadResource(imageSource: Int) {
-    loadResourceImage(imageSource, R.drawable.bg_placeholder)
+@BindingAdapter("liked")
+fun ImageView.liked(isLiked: Boolean) {
+    if(isLiked){
+        loadResourceImage(R.drawable.ic_like_active, R.drawable.bg_placeholder)
+    } else {
+        loadResourceImage(R.drawable.ic_like_inactive, R.drawable.bg_placeholder)
+    }
 }
 
 fun ImageView.loadResourceImage(imageId: Int, placeholder: Int) {

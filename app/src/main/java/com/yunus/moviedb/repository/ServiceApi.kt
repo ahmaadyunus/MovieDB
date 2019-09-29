@@ -47,5 +47,10 @@ interface ServiceApi {
                      @Query("session_id") sessionId: String?,
                      @Body request: MakeFavouriteRequest?): Observable<MakeFavouriteResponse>
 
+    @Headers("Content-Type: application/json")
+    @GET("movie/{movie_id}")
+    fun getMovieDetails( @Path("movie_id") movieId: Int?,
+                         @Query("api_key") apiKey: String): Observable<MovieDetailsResponse>
+
 
 }
